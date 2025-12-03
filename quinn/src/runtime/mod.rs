@@ -145,7 +145,11 @@ impl<Socket, MakeWritableFutFn, WriteableFut>
     /// that resolves once the socket is write-ready.
     ///
     /// See also the bounds on this struct's [`UdpSender`] implementation.
-    #[cfg(any(feature = "runtime-smol", feature = "runtime-tokio",))]
+    #[cfg(any(
+        feature = "runtime-smol",
+        feature = "runtime-tokio",
+        feature = "runtime-async-executor"
+    ))]
     fn new(inner: Socket, make_fut: MakeWritableFutFn) -> Self {
         Self {
             socket: inner,
