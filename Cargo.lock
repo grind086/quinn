@@ -1794,7 +1794,9 @@ name = "quinn"
 version = "0.12.0"
 dependencies = [
  "anyhow",
+ "async-executor",
  "async-io",
+ "async-lock",
  "bencher",
  "bytes",
  "cfg_aliases",

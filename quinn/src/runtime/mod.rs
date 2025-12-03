@@ -1,4 +1,8 @@
-#[cfg(any(feature = "runtime-tokio", feature = "runtime-smol"))]
+#[cfg(any(
+    feature = "runtime-tokio",
+    feature = "runtime-smol",
+    feature = "runtime-async-executor"
+))]
 use std::sync::Arc;
 use std::{
     fmt::{self, Debug},
@@ -218,15 +222,27 @@ trait UdpSenderHelperSocket: Send + Sync + 'static {
 /// Automatically select an appropriate runtime from those enabled at compile time
 ///
 /// If `runtime-tokio` is enabled and this function is called from within a Tokio runtime context,
-/// then `TokioRuntime` is returned. Otherwise, if `runtime-smol` is enabled, `SmolRuntime` is
-/// returned. Otherwise, `None` is returned.
-#[cfg(any(feature = "runtime-tokio", feature = "runtime-smol"))]
+/// then `TokioRuntime` is returned. Otherwise, if `runtime-async-executor` is enabled and
+/// `ASYNC_EXECUTOR` is initialized, then `AsyncExecutorRuntime` is returned. Otherwise, if
+/// `runtime-smol` is enabled, `SmolRuntime` is returned. Otherwise, `None` is returned.
+#[cfg(any(
+    feature = "runtime-tokio",
+    feature = "runtime-smol",
+    feature = "runtime-async-executor"
+))]
 #[allow(clippy::needless_return)] // Be sure we return the right thing
 pub fn default_runtime() -> Option<Arc<dyn Runtime>> {
     #[cfg(feature = "runtime-tokio")]
     {
         if ::tokio::runtime::Handle::try_current().is_ok() {
             return Some(Arc::new(TokioRuntime));
+        }
+    }
+
+    #[cfg(feature = "runtime-async-executor")]
+    {
+        if ASYNC_EXECUTOR.is_initialized() {
+            return Some(Arc::new(AsyncExecutorRuntime));
         }
     }
 
@@ -243,6 +259,14 @@ pub fn default_runtime() -> Option<Arc<dyn Runtime>> {
 mod tokio;
 #[cfg(feature = "runtime-tokio")]
 pub use tokio::TokioRuntime;
+
+#[cfg(any(feature = "runtime-smol", feature = "runtime-async-executor"))]
+mod async_io;
+
+#[cfg(any(feature = "runtime-async-executor"))]
+mod async_executor;
+#[cfg(feature = "runtime-async-executor")]
+pub use async_executor::*;
 
 #[cfg(feature = "runtime-smol")]
 mod smol;

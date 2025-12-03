@@ -37,6 +37,7 @@ rustls-ring = ["dep:rustls", "ring", "proto/rustls-ring", "proto/ring"]
 ring = ["proto/ring"]
 runtime-tokio = ["tokio/time", "tokio/rt", "tokio/net"]
 runtime-smol = ["dep:async-io", "dep:smol"]
+runtime-async-executor = ["dep:async-io", "dep:async-executor", "dep:async-lock"]
 
 # Configure `tracing` to log events via `log` if no `tracing` subscriber exists.
 tracing-log = ["tracing/log", "proto/tracing-log", "udp/tracing-log"]
@@ -52,6 +53,8 @@ __rustls-post-quantum-test =  ["rustls/prefer-post-quantum", "rustls-aws-lc-rs",
 
 [dependencies]
 async-io = { workspace = true, optional = true }
+async-executor = { workspace = true, optional = true }
+async-lock = { workspace = true, optional = true }
 bytes = { workspace = true }
 # Enables futures::io::{AsyncRead, AsyncWrite} support for streams
 futures-io = { workspace = true, optional = true }
